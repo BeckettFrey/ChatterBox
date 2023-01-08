@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.socket.io/socket.io-3.0.1.min.js"></script>
+    <title>Document</title>
+  </head>
+  <body>
+    <form action="/home/chats/chatting/<%=chatCred.name%>/<%=user%>" method="patch"></form>
+    <input type="text" class="message" name="input" />
+      <button onclick="sendMessage()">send</button>
+    </form>
+    <h1>
+    </h1>
+    <h2></h2>
+  </body>
+  <script>
+    
+    var array = '<%-chatCred.saved%>';
+    console.log(array)
+    console.log("inside")
+        for(let i = 0; i < array.length; i++){
+            console.log(array[i])
+          var doc = document.createElement("p");
+          var node = document.createTextNode(array[i]);
+          doc.append(node);
+          document.querySelector("h2").appendChild(doc);
+        }
+    //Web socket
+
+    const socket = io("http://localhost:3000");
+    socket.on("connection");
+    console.log("<%-chatCred.name%>");
+    socket.emit("joinroom", "<%-chatCred.name%>");
+    socket.on("message", (data) => {
+      const newEl = document.createElement("p");
+      const tesNode = document.createTextNode(data);
+      newEl.append(tesNode);
+      document.querySelector("h2").appendChild(newEl);
+    });
+
+    const sendMessage = () => {
+      socket.emit("joinroom", "<%-chatCred.name%>");
+      console.log("inside");
+      const msg = document.querySelector(".message");
+      let message = "<%-user%>: ";
+      message = message.concat(msg.value);
+      socket.emit("message", message);
+    };
+  </script>
+</html>
