@@ -10,6 +10,8 @@ const { stringify } = require("querystring");
 router.use(bodyParser.urlencoded({ extended: false }));
 
 router.post("/login", async (req, res) => {
+  var chatRmv = "";
+  var checkAttendance = false;
   var hashPass = await Account.find({ username: req.body.username }).exec();
   try {
     if (await bcrypt.compare(req.body.password, hashPass[0].password)) {
@@ -33,13 +35,32 @@ router.get("/all", async (req, res) => {
   }
 });
 //New chat
-router.post("/:id/new", getAccount, async (req, res) => {
-  console.log(res.account);
-  res.account.hosting.push(req.body.chat);
-  console.log(res.account);
+router.post("/:host/new", getAccount, async (req, res) => {
+  res.account = res.account[0];
+  let dup = false;
+  console.log(res.account.hosting.length);
+  if (res.account.hosting.length > 0) {
+    console.log(dup);
+    for (let i = 0; i < res.account.hosting.length; i++) {
+      console.log(res.account.hosting[i]);
+      console.log(req.params.host);
+      if (res.account.hosting[i] == req.body.chat) {
+        dup = true;
+      }
+    }
+    console.log(dup);
+  }
+  console.log("1");
+  if (!dup) {
+    res.account.hosting.push(req.body.chat);
+  }
+  console.log("12");
+  var checkAttendance = false;
+  var chatRmv = "";
   var cred = res.account;
+  console.log(res.account);
   try {
-    if (await Account.findByIdAndUpdate(req.params.id, res.account)) {
+    if (await Account.findByIdAndUpdate(res.account._id, res.account)) {
       res.render("home", { cred });
     }
   } catch (err) {
@@ -51,7 +72,6 @@ router.post("/signup", async (req, res) => {
   // Check for repetition (1)
   var name = req.body.username;
   const check = await Account.find({ username: name }).exec();
-  console.log(check);
   if (check == "") {
     // (1)
     // Check for empty entries (2)
@@ -94,12 +114,28 @@ router.delete("/:id", getAccount, async (req, res) => {
   }
 });
 
+router.get("/leave/:name/:host", getAccount, async (req, res) => {
+  res.account = res.account[0];
+  var myArray = res.account.hosting;
+  const index = myArray.indexOf(req.params.name);
+  console.log(res.account);
+  myArray.splice(index, 1);
+  console.log(myArray);
+
+  try {
+    await Account.findByIdAndUpdate(res.account._id, { hosting: myArray });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+  let cred = res.account;
+  res.render("home", { cred });
+});
 //Middleware function to retrieve account and store in res.account
 async function getAccount(req, res, next) {
   let account;
   // Search for account.
   try {
-    account = await Account.findById(req.params.id);
+    account = await Account.find({ username: req.params.host }).exec();
     if (account == null) {
       res.status(404).json("cannot find account " + req.body.id);
     }
@@ -111,6 +147,7 @@ async function getAccount(req, res, next) {
   // Leave function.
   next();
 }
+
 const chatsRouter = require("../routes/chats");
 router.use("/chats", chatsRouter);
 module.exports = router;

@@ -58,7 +58,7 @@
   <body>
     <p>Welcome <%= cred.username %></p>
     <% cred.hosting %>
-    <form action="/home/<%= cred.id%>/new" method="post">
+    <form action="/home/<%= cred.username%>/new" method="post">
       <input type="text" name="chat" placeholder="name" />
       <Button>+</Button>
     </form>
@@ -68,7 +68,7 @@
         <h1>
           <ul>
             <% for(var i=0; i<cred.hosting.length; i++) {%>
-              <form action="/home/chats/<%=cred.hosting[i]%>/<%=cred.username %>" method="post">
+              <form action="/home/chats/<%=cred.hosting[i]%>/<%=cred.username %>" method="get">
                <button><li><%= cred.hosting[i] %></li></button>
               </form>
             <% } %>
@@ -78,7 +78,7 @@
     </div>
 
     <script>
-
+    
       
       //Dropdown menu until end.
       // Close the dropdown menu if the user clicks outside of it

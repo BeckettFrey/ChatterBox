@@ -12,7 +12,6 @@ const io = require("socket.io")(server);
 server.listen(3000);
 var room;
 io.on("connection", (socket) => {
-  console.log("connection");
   socket.on("joinroom", (data) => {
     room = data;
     socket.join(data);
@@ -20,8 +19,6 @@ io.on("connection", (socket) => {
   // socket.on("login", ({ name, room }, callback) => {});
 
   socket.on("message", (data) => {
-    console.log(data);
-
     socket.broadcast.to(room).emit("message", data);
   });
 });
